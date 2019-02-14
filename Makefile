@@ -55,6 +55,14 @@ scipy:
 	docker stop lambda
 	docker rm lambda
 
+apipull:
+	docker build -f Dockerfiles/python3.6 --tag lambda:python3.6 .
+	docker build -f Dockerfiles/apipull --tag lambda:apipull .
+	docker run --name lambda -itd lambda:apipull
+	docker cp lambda:/tmp/package.zip package_apipull.zip
+	docker stop lambda
+	docker rm lambda
+
 ################################################################################
 # TESTS
 test-rio:
@@ -88,6 +96,15 @@ test-opencv:
 	docker build -f Dockerfiles/lambda --tag lambda:runtime .
 	docker run -w /var/task/ --name lambda --volume $(shell pwd)/:/data -itd lambda:runtime
 	docker exec -it lambda bash -c 'unzip -q /data/package_opencv.zip -d /var/task'
+	docker exec -it lambda bash -c 'pip3 install boto3 jmespath python-dateutil -t /var/task'
+	docker exec -it lambda python3 -c 'from handler import handler; print(handler("test", "test"))'
+	docker stop lambda
+	docker rm lambda
+
+test-apipull:
+	docker build -f Dockerfiles/lambda --tag lambda:runtime .
+	docker run -w /var/task/ --name lambda --volume $(shell pwd)/:/data -itd lambda:runtime
+	docker exec -it lambda bash -c 'unzip -q /data/package_apipull.zip -d /var/task'
 	docker exec -it lambda bash -c 'pip3 install boto3 jmespath python-dateutil -t /var/task'
 	docker exec -it lambda python3 -c 'from handler import handler; print(handler("test", "test"))'
 	docker stop lambda

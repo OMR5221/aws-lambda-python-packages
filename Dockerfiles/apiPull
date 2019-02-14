@@ -21,7 +21,7 @@ RUN find /tmp/vendored -type f -a -name '*.py' -print0 | xargs -0 rm -f
 RUN du -sh /tmp/vendored
 
 # Bring your own script
-COPY scripts/handler_apiPull.py /tmp/vendored/handler.py
+COPY scripts/handler_apipull.py /tmp/vendored/handler.py
 
 # Create the zip file
 RUN cd /tmp/vendored && zip -r9q /tmp/package.zip *
